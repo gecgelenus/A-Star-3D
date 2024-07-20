@@ -1,5 +1,5 @@
 # A-Star-3D
-A star algorithm that works on 3D space
+A* algorithm that works on 3D space
 
 
 Create a graph file using graphCreate.cpp, and use functions inside astar.cpp to find way between waypoints.
