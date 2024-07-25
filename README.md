@@ -8,7 +8,7 @@ Compile them both using any compiler.
 
 For creating graph file, use this parameters to createGraph program: EXECUTABLE [output file name]  [Max X] [Max Y] [Max Z] [Min X] [Min Y] [Min Z] [Resolution]
 
-After creating graph file, use this parameters to find ways between given points: Usage: EXECUTABLE [graph file name]
+After creating graph file, use this parameters to find ways between given points: Usage: EXECUTABLE [graph file name] [used node file] [start X] [start Y] [start Z] [end X] [end Y] [end Z]
 
 About findWay function inside astar.cpp: If you are willing to find way without crossing previous ways, give last parameter true, if not, give false. This parameter restricts used nodes for future usage.
 
