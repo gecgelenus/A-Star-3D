@@ -1,4 +1,4 @@
-﻿#include <iomanip>
+#include <iomanip>
 
 #include <iostream>
 #include <sstream>
@@ -20,7 +20,7 @@ class node {
 
 public:
     node() {
-        status = 0;
+        
         previous = nullptr;
         g = 999999999;
         h = 0;
@@ -72,10 +72,12 @@ std::vector<node*> used;
 std::vector<node*> nodeList;
 std::string usedNodeFile;
 
+bool writeDiscard = false;
+
 int main(int argc, char** argv)
 {
 
-    if(argc != 9){
+    if (argc != 9) {
         std::cout << "Invalid arguments given. Use --help for help" << std::endl;
         return 1;
     }
@@ -85,19 +87,22 @@ int main(int argc, char** argv)
 
 
 
-    if(fileName == "--help" || fileName == "-h"){
+    if (fileName == "--help" || fileName == "-h") {
         std::cout << "Usage: EXECUTABLE [graph file name] [used node file] [start X] [start Y] [start Z] [end X] [end Y] [end Z]" << std::endl;
         return 0;
     }
 
 
     readFile(fileName);
-    updateNodeList(usedNodeFile);
+    //updateNodeList(usedNodeFile);
 
     node* start = findNode(std::stof(argv[3]), std::stof(argv[4]), std::stof(argv[5]));
-    node* end = findNode(std::stof(argv[6]),std::stof(argv[7]),std::stof(argv[8]));
-    
-    findWay(start, end, true);
+    node* end = findNode(std::stof(argv[6]), std::stof(argv[7]), std::stof(argv[8]));
+
+
+
+
+    findWay(start, end, false);
     printWay(end);
     saveWayToFile(end);
     resetWays();
@@ -110,12 +115,16 @@ int main(int argc, char** argv)
 
 bool iterNeighbor(node* cur, node* next, int cost) {
 
-    for (node* n : close) {
-        if (n->id == cur->id)
-            return false;
-    }
 
+
+    for (node* n : close) {
+        if (n->id == next->id) {
+            return false;
+        }
+    }
     int temp_g = cur->g + cost;
+
+
 
     if (temp_g > next->g) {
         return false;
@@ -149,63 +158,65 @@ float distance(node* n, node* m) {
 }
 
 
-void readFile(std::string& fileName){
+void readFile(std::string& fileName) {
 
-    std::cout << "Reading file, current node list size: " << nodeList.size() << std::endl;
     std::ifstream file;
     file.open(fileName);
 
     char buffer[1024];
 
-    while(file.getline(buffer, 1024)){
+    while (file.getline(buffer, 1024)) {
         std::stringstream line(buffer);
         std::vector<std::string> words;
         std::string temp;
         words.reserve(50);
 
-        while(line >> temp){
+        while (line >> temp) {
             words.push_back(temp);
         }
 
-        if(words[0] == "NL"){
+        if (words[0] == "NL") {
             node* n = nodeList[std::stod(words[1])];
             int count = std::stod(words[2]);
-            for(int i = 3; i < (count*2)+3; i += 2){
+            for (int i = 3; i < (count * 2) + 3; i += 2) {
                 n->neighbors.push_back(nodeList[std::stod(words[i])]);
-                n->cost.push_back(std::stof(words[i+1]));
+                n->cost.push_back(std::stof(words[i + 1]));
             }
 
 
-        }else{
+        }
+        else {
             node* n = new node();
             n->id = std::stod(words[0]);
             n->x = std::stof(words[1]);
             n->y = std::stof(words[2]);
             n->z = std::stof(words[3]);
             nodeList.push_back(n);
-            
+
         }
 
-        
+
 
     }
 
-    
+
+    std::cout << "File read, current node list size: " << nodeList.size() << std::endl;
 
 
 }
 
-void findWay(node* start, node* target, bool updateNodes){
+void findWay(node* start, node* target, bool updateNodes) {
 
     for (node* n : nodeList) {
         n->h = distance(n, target);
     }
 
 
+
     start->g = 0;
     open.push_back(start);
 
-    
+
     while (true) {
 
         node* min;
@@ -242,43 +253,43 @@ void findWay(node* start, node* target, bool updateNodes){
 
     }
 
-if(updateNodes){
-    node* cur = target;
+    if (updateNodes) {
+        node* cur = target;
 
-    while (cur->previous != nullptr) {
+        while (cur->previous != nullptr) {
+            used.push_back(cur);
+            cur->used = true;
+            cur = cur->previous;
+        }
         used.push_back(cur);
         cur->used = true;
-        cur = cur->previous;
     }
-    used.push_back(cur);
-    cur->used = true;
-}
     close.clear();
     open.clear();
 
-    if(updateNodes){
+    if (updateNodes) {
         updateNodeList(usedNodeFile);
 
     }
 }
 
-void updateNodeList(std::string& path){
+void updateNodeList(std::string& path) {
 
 
     std::ifstream file;
     file.open(path);
 
     char buffer[512];
-    while(file.getline(buffer, sizeof(char)*512)){
- 
+    while (file.getline(buffer, sizeof(char) * 512)) {
+
         std::stringstream ss(buffer);
         std::string x;
         std::string y;
         std::string z;
 
-        ss >> x >> y >> z ;
+        ss >> x >> y >> z;
         node* n = findNode(std::stof(x), std::stof(y), std::stof(z));
-        std::cout << "Discarding node: "<< n->id << "-> X:" << n->x << " Y:" << n->y << " Z:" << n->z << std::endl;;
+        std::cout << "Discarding node: " << n->id << "-> X:" << n->x << " Y:" << n->y << " Z:" << n->z << std::endl;;
         n->used = true;
 
     }
@@ -316,10 +327,11 @@ void updateNodeList(std::string& path){
 }
 
 
-node* findNode(float x, float y, float z){
+node* findNode(float x, float y, float z) {
 
-    for(node* n: nodeList){
-        if(n->x == x && n->y == y && n->z == z){
+    for (node* n : nodeList) {
+        if (n->x == x && n->y == y && n->z == z) {
+            std::cout << "Node found!" << std::endl;
             return n;
         }
     }
@@ -327,7 +339,7 @@ node* findNode(float x, float y, float z){
 
 }
 
-void printWay(node* target){
+void printWay(node* target) {
 
     node* cur = target;
 
@@ -340,14 +352,14 @@ void printWay(node* target){
     std::cout << "----------------------------------------------------------" << std::endl;
 }
 
-void resetWays(){
-    for(node* n: nodeList){
+void resetWays() {
+    for (node* n : nodeList) {
         n->previous == nullptr;
     }
 }
 
 
-void drawWay(node* target, std::vector<std::string>& entityNames, std::string& color){
+void drawWay(node* target, std::vector<std::string>& entityNames, std::string& color) {
 
     node* cur = target;
     int counter = 1;
@@ -408,42 +420,46 @@ void drawWay(node* target, std::vector<std::string>& entityNames, std::string& c
 }
 
 
-void saveWayToFile(node* target){
-
-    std::ofstream waySave;
-    waySave.open("waySave");
-
+void saveWayToFile(node* target) {
     std::ofstream discradingNodes;
-    discradingNodes.open(usedNodeFile, std::ios_base::app);
+    std::ofstream waySave;
 
+    waySave.open("waySave");
+    
+
+    if (writeDiscard) {
+        
+        discradingNodes.open(usedNodeFile, std::ios_base::app);
+    }
 
     node* cur = target;
 
-    while(cur->previous != nullptr){
+    while (cur->previous != nullptr) {
         waySave << cur->x << std::fixed << std::setprecision(2) << " " <<
-        cur->y << std::fixed << std::setprecision(2) << " " << 
-         cur->z << std::fixed << std::setprecision(2) << std::endl;
-
-        discradingNodes << cur->x << std::fixed << std::setprecision(2) << " " <<
-            cur->y << std::fixed << std::setprecision(2) << " " << 
+            cur->y << std::fixed << std::setprecision(2) << " " <<
             cur->z << std::fixed << std::setprecision(2) << std::endl;
+        if (writeDiscard) {
+            discradingNodes << cur->x << std::fixed << std::setprecision(2) << " " <<
+                cur->y << std::fixed << std::setprecision(2) << " " <<
+                cur->z << std::fixed << std::setprecision(2) << std::endl;
+        }
+
+        cur = cur->previous;
 
 
-         cur = cur->previous;
-    
-    
     }
 
     waySave << cur->x << std::fixed << std::setprecision(2) << " " <<
-        cur->y << std::fixed << std::setprecision(2) << " " << 
-         cur->z << std::fixed << std::setprecision(2) << std::endl;
+        cur->y << std::fixed << std::setprecision(2) << " " <<
+        cur->z << std::fixed << std::setprecision(2) << std::endl;
 
-
-    discradingNodes << cur->x << std::fixed << std::setprecision(2) << " " <<
-            cur->y << std::fixed << std::setprecision(2) << " " << 
+    if (writeDiscard) {
+        discradingNodes << cur->x << std::fixed << std::setprecision(2) << " " <<
+            cur->y << std::fixed << std::setprecision(2) << " " <<
             cur->z << std::fixed << std::setprecision(2) << std::endl;
+        discradingNodes.close();
 
+    }
     waySave.close();
-    discradingNodes.close();
 
 }
