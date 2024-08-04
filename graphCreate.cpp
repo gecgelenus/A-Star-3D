@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <string>
 #include <cmath>
 
 class node {
@@ -42,18 +43,18 @@ public:
 float distance(node* n, node* m);
 
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 
-    
+
     std::string fileName = argv[1];
 
 
-    if(fileName == "--help" || fileName == "-h"){
+    if (fileName == "--help" || fileName == "-h") {
         std::cout << "Usage: EXECUTABLE [output file name]  [Max X] [Max Y] [Max Z] [Min X] [Min Y] [Min Z] [Resolution]" << std::endl;
         return 0;
     }
-    if(argc != 9){
+    if (argc != 9) {
         std::cout << "Invalid arguments given. Use --help for help" << std::endl;
         std::cout << "Given: " << argc << std::endl;
 
@@ -112,7 +113,7 @@ int main(int argc, char** argv){
                             continue;
 
                         n->neighbors.push_back(m);
-                        float cost = distance(n,m);
+                        float cost = distance(n, m);
                         n->cost.push_back(cost);
                         continue;
                     }
@@ -125,16 +126,16 @@ int main(int argc, char** argv){
     std::ofstream file;
     file.open(fileName);
 
-    for(node* n: nodeList){
+    for (node* n : nodeList) {
         file << n->id << " " << n->x << std::fixed << std::setprecision(2) << " " <<
-        n->y << std::fixed << std::setprecision(2) << " " <<
-        n->z << std::fixed << std::setprecision(2) << std::endl; // printing nodes and heuristic distance values
+            n->y << std::fixed << std::setprecision(2) << " " <<
+            n->z << std::fixed << std::setprecision(2) << std::endl; // printing nodes and heuristic distance values
     }
 
 
-    for(node* n: nodeList){
+    for (node* n : nodeList) {
         file << "NL " << n->id << " " << n->neighbors.size() << " "; // printing neighbors
-        for(int i = 0; i < n->neighbors.size(); i++){
+        for (int i = 0; i < n->neighbors.size(); i++) {
             file << n->neighbors[i]->id << std::fixed << std::setprecision(2) << " " << n->cost[i] << std::fixed << std::setprecision(2) << " ";
         }
         file << std::endl;
@@ -155,4 +156,4 @@ float distance(node* n, node* m) {
     return sqrt((n->x - m->x) * (n->x - m->x) + (n->y - m->y) * (n->y - m->y) +
         (n->z - m->z) * (n->z - m->z));
 
-}
+} 
