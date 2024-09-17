@@ -11,7 +11,7 @@ For creating graph file, use this parameters to createGraph program: EXECUTABLE 
 After creating graph file, use this parameters to find ways between given points: Usage: EXECUTABLE [graph file name] [used node file] [start X] [start Y] [start Z] [end X] [end Y] [end Z]
 
 >[!WARNING]
->It used to be work as this, but since I was using this algorithm on swarm drones originally, which they have low power chips, I have done several optimizations, including but changing it to as "service". So usage is changed a bit, maybe a lot. I am going to update this portion of document in future.
+>It used to be work as this, but since I was using this algorithm on swarm drones originally, which they have low power chips, I have done several optimizations, including transform it to as "service". So usage is changed a bit, maybe a lot. I am going to update this portion of document in future. I am busy nowadays.
 
 About findWay function inside astar.cpp: If you are willing to find way without crossing previous ways, give last parameter true, if not, give false. This parameter restricts used nodes for future usage.
 
