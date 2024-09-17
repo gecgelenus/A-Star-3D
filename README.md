@@ -15,4 +15,4 @@ After creating graph file, use this parameters to find ways between given points
 
 About findWay function inside astar.cpp: If you are willing to find way without crossing previous ways, give last parameter true, if not, give false. This parameter restricts used nodes for future usage.
 
-drawWay is the function needed to visualize waypoints with my graphic engine, you can omit that for now. 
+drawWay is the function needed to visualize waypoints with my graphic engine, you can omit that if you are not using the engine. 
